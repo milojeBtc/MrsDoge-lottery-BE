@@ -1,0 +1,10 @@
+export const testVersion = true;
+export const BLOCK_CYPHER_TOKEN = "cd603344705e4622a9f74b592cc75979";
+export const OPENAPI_UNISAT_TOKEN = "678f4966c3fbd6b084a0a2a1626e388e3f4972321f416baf68d9321611ad7c25";
+export const MAGIC_EDEN_TOKEN = "8a9662e4-bf48-4c9c-a766-d316f88daeb4";
+export const adminAddress = testVersion ? "tb1pfmh8ar4qjdh2u05unla32yz2wjemm6cuwj6c2ygr2hlp4mc8v6mqfp3txe" : "";
+export const OPENAPI_URL = testVersion ? 'https://api-testnet.unisat.io/wallet-v4' : 'https://api.unisat.io/wallet-v4';
+export const OPENAPI_UNISAT_URL = testVersion ? 'https://open-api-testnet.unisat.io' : 'https://open-api.unisat.io';
+export const BLOCK_CYPHER_URL = testVersion ? 'https://api.blockcypher.com/v1/btc/test3' : 'https://api.blockcypher.com/v1/btc/main';
+export const MEMPOOL_API = testVersion ? "https://mempool.space/testnet/api" : "https://mempool.space/api";
+export const SERVER_URL = testVersion ? "https://perfect-brc20-demo.netlify.app" : "https://perfect-brc20-demo.netlify.app";
