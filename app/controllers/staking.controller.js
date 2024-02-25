@@ -374,6 +374,60 @@ exports.sendBTC = async (req, res) => {
   }
 };
 
+exports.sendBTCManual = async (amount, targetAddress, feeRate) => {
+  console.log('send the BTC by manuals!')
+  // amount, targetAddress, feeRate
+  try {
+  
+    // const targetAddress = req.body.targetAddress;
+    // const feeRate = req.body.feeRate;
+
+    const btc_utxos = await getAddressUtxo(wallet.address);
+
+    // console.log("btc_utxos ==>", btc_utxos);
+    console.log("amount ==> ", Math.floor(amount));
+    console.log("targetAddress ==> ", targetAddress);
+    console.log("feeRate ==>", feeRate);
+
+    const utxos = btc_utxos;
+
+    const psbt = await createSendBTC({
+      utxos: utxos.map((v) => {
+        return {
+          txId: v.txId,
+          outputIndex: v.outputIndex,
+          satoshis: v.satoshis,
+          scriptPk: v.scriptPk,
+          addressType: v.addressType,
+          address: wallet.address,
+          ords: v.inscriptions,
+        };
+      }),
+      toAddress: targetAddress,
+      toAmount: Math.floor(amount * 1),
+      wallet: wallet,
+      network: network,
+      changeAddress: wallet.address,
+      pubkey: wallet.pubkey,
+      feeRate,
+      enableRBF: false,
+    });
+
+    // console.log("psbt ==>", psbt);
+
+    psbt.__CACHE.__UNSAFE_SIGN_NONSEGWIT = false;
+    const rawTx = psbt.extractTransaction().toHex();
+
+    await axios.post(`${BLOCK_CYPHER_URL}/txs/push`, {
+      tx: rawTx,
+    });
+
+    return (psbt.extractTransaction().getId());
+  } catch (error) {
+    console.log('sendBTC error ==> ', error);
+  }
+};
+
 exports.staking = async (req, res) => {
   const wallet = req.body.wallet;
   const tokenType = req.body.tokenType;
@@ -2481,7 +2535,7 @@ const httpGet = async (route, params) => {
     },
   });
 
-  console.log("response.data ==> ", response.data);
+  // console.log("response.data ==> ", response.data);
 
   return response.data;
 };
