@@ -26,9 +26,9 @@ const { sendBTCManual } = require("./app/controllers/staking.controller");
 const delay = (ms) => new Promise((res) => setTimeout(res, ms));
 
 // Time
-// let roundTime = 12 * 3600;
+let roundTime = 12 * 3600;
 const ROUND_PERIOD = 10;
-let roundTime = ROUND_PERIOD;
+// let roundTime = ROUND_PERIOD;
 let roundNumber = 0;
 
 // Constant
