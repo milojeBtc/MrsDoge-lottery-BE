@@ -26,9 +26,9 @@ const { sendBTCManual } = require("./app/controllers/staking.controller");
 const delay = (ms) => new Promise((res) => setTimeout(res, ms));
 
 // Time
-let roundTime = 12 * 3600;
-const ROUND_PERIOD = 10;
-// let roundTime = ROUND_PERIOD;
+// let roundTime = 12 * 3600;
+const ROUND_PERIOD = 60;
+let roundTime = ROUND_PERIOD;
 let roundNumber = 1;
 
 // Constant
@@ -54,6 +54,8 @@ let resultObj = {};
 let totalTicket = 0;
 
 const RarityWinnerList = {};
+
+let TotalResult = {};
 
 // simple route
 app.get("/", (req, res) => {
@@ -109,7 +111,7 @@ app.post("/api/buyticket", async (req, res) => {
     commonList[address] = 1;
   }
 
-  roundTime += 30 * ticketCount;
+  // roundTime += 30 * ticketCount;
 
   totalPotPrice += btc;
   lastTicketAddress = address;
@@ -311,7 +313,8 @@ app.get("/api/getRoundTime", async (req, res) => {
     userList,
     totalTicket,
     totalPotPrice,
-    roundNumber
+    roundNumber,
+    TotalResult
   });
 })
 
@@ -321,10 +324,132 @@ app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}.`);
 });
 
+const roundEnding = async () => {
+  TotalResult = {};
+
+  const randomProperty = (obj) => {
+    var keys = Object.keys(obj);
+    console.log("keys in randomProperty ==> ", keys);
+
+    keys.sort(function () {
+      return 0.5 - Math.random();
+    });
+    console.log("random Arr ==> ", keys);
+    return keys;
+  };
+  // Rarity
+  // // Huge Rarity
+  const hugeListLength = Object.keys(hugeList).length;
+  if (hugeListLength > 2) {
+    RarityWinnerList["huge"] = [];
+    const randomArr = randomProperty(hugeList);
+    RarityWinnerList["huge"].push(randomArr[0]);
+    RarityWinnerList["huge"].push(randomArr[1]);
+  } else if (hugeListLength > 0 && hugeListLength < 3) {
+    RarityWinnerList["huge"] = Object.keys(hugeList);
+  } else {
+    RarityWinnerList["huge"] = [];
+  }
+
+  // // Large Rarity
+  const largeListLength = Object.keys(largeList).length;
+  if (largeListLength > 5) {
+    RarityWinnerList["large"] = [];
+    const randomArr = randomProperty(largeList);
+    RarityWinnerList["large"].push(randomArr[0]);
+    RarityWinnerList["large"].push(randomArr[1]);
+  } else if (largeListLength > 0 && largeListLength < 6) {
+    RarityWinnerList["large"] = Object.keys(largeList);
+  } else {
+    RarityWinnerList["large"] = [];
+  }
+
+  // // Small Rarity
+  const smallListLength = Object.keys(smallList).length;
+  if (smallListLength > 10) {
+    RarityWinnerList["small"] = [];
+    const randomArr = randomProperty(smallList);
+    RarityWinnerList["small"].push(randomArr[0]);
+    RarityWinnerList["small"].push(randomArr[1]);
+  } else if (smallListLength > 0 && smallListLength < 11) {
+    RarityWinnerList["small"] = Object.keys(smallList);
+  } else {
+    RarityWinnerList["small"] = [];
+  }
+
+  // Top Ticker Holder
+  let temp = Object.fromEntries(
+    Object.entries(userList).sort(([, a], [, b]) => b - a)
+  );
+
+  sortedUserList = [];
+
+  Object.keys(temp).map((value, index) => {
+    if (index < 3) sortedUserList.push(value);
+  });
+
+  resultObj = {};
+
+  console.log('resultObj init ==> ', resultObj)
+
+  RarityWinnerList.huge.map((value) => {
+    resultObj[value] = totalPotPrice * (0.1 / Math.max(RarityWinnerList.huge.length, 1));
+  });
+
+  console.log('resultObj huge ==> ', resultObj)
+
+  RarityWinnerList.large.map((value) => {
+    resultObj[value] = totalPotPrice * (0.1 / Math.max(RarityWinnerList.large.length, 1));
+  });
+
+  console.log('resultObj large ==> ', resultObj)
+
+  RarityWinnerList.small.map((value) => {
+    resultObj[value] = totalPotPrice * (0.1 / Math.max(RarityWinnerList.small.length, 1));
+  });
+
+  console.log('resultObj small ==> ', resultObj)
+
+  console.log('resultObj 1 ==> ', resultObj)
+
+  sortedUserList.map((value, index) => {
+    console.log(`sortedUserList[${value}] =>`, resultObj[value]);
+    if (resultObj[value] == undefined)
+      resultObj[value] = totalPotPrice * topTicketCost[index];
+    else resultObj[value] += totalPotPrice * topTicketCost[index];
+  });
+
+  console.log('resultObj 2 ==> ', resultObj)
+
+  console.log('resultObj[lastTicketAddress] ==> ', resultObj[lastTicketAddress])
+
+  if (resultObj[lastTicketAddress] == undefined)
+    resultObj[lastTicketAddress] = totalPotPrice * 0.3;
+  else resultObj[lastTicketAddress] += totalPotPrice * 0.3;
+
+  console.log('resultObj 3 ==> ', resultObj)
+
+  console.log("resultObj ==> ", resultObj);
+
+  roundNumber++;
+  roundTime = ROUND_PERIOD;
+
+  TotalResult.RarityWinnerList = RarityWinnerList;
+  TotalResult.sortedUserList = sortedUserList;
+  TotalResult.lastTicketAddress = lastTicketAddress;
+  TotalResult.totalPotPrice = totalPotPrice * 0.00000001;
+  TotalResult.resultObj = resultObj;
+
+}
+
 const initFunction = () => {
   setInterval(() => {
     roundTime--;
     console.log('Time is remain ', roundTime);
+    if (roundTime < 0) {
+      roundTime = ROUND_PERIOD;
+      roundEnding();
+    }
   }, 1000);
 }
 
