@@ -29,7 +29,7 @@ const delay = (ms) => new Promise((res) => setTimeout(res, ms));
 let roundTime = 12 * 3600;
 const ROUND_PERIOD = 10;
 // let roundTime = ROUND_PERIOD;
-let roundNumber = 0;
+let roundNumber = 1;
 
 // Constant
 const topTicketCost = [0.2, 0.1, 0.05];
