@@ -5,7 +5,7 @@
   "main": "server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "nodemon server.js --host 146.19.215.121"
+    "dev": "nodemon server.js"
   },
   "keywords": [
     "node.js",
@@ -34,6 +34,7 @@
     "jsonwebtoken": "^9.0.0",
     "mongoose": "^6.11.2",
     "node-fetch": "^3.3.2",
+    "nodemon": "^3.1.0",
     "qs": "^6.11.2",
     "randomstring": "^1.3.0",
     "touch": "^3.1.0"

@@ -21,28 +21,18 @@ app.use(
   })
 );
 
-const db = require("./app/models");
 const { sendBTCManual } = require("./app/controllers/staking.controller");
-
-// db.mongoose
-//   .connect(`mongodb+srv://liamcarlospolet1231:67rFjL5Isc1AS71s@cluster0.lfz6wid.mongodb.net/dexodi`, {
-//     useNewUrlParser: true,
-//     useUnifiedTopology: true
-//   })
-//   .then(() => {
-//     console.log("Successfully connect to MongoDB.");
-//     // initial();
-//   })
-//   .catch(err => {
-//     console.error("Connection error", err);
-//     process.exit();
-//   });
 
 const delay = (ms) => new Promise((res) => setTimeout(res, ms));
 
+// Time
+// let roundTime = 12 * 3600;
+const ROUND_PERIOD = 10;
+let roundTime = ROUND_PERIOD;
+let roundNumber = 0;
+
 // Constant
 const topTicketCost = [0.2, 0.1, 0.05];
-//
 
 const userList = {};
 const addressToBTC = {};
@@ -61,6 +51,7 @@ let totalPotPrice = 0;
 
 // Result Object
 let resultObj = {};
+let totalTicket = 0;
 
 const RarityWinnerList = {};
 
@@ -118,8 +109,11 @@ app.post("/api/buyticket", async (req, res) => {
     commonList[address] = 1;
   }
 
+  roundTime += 30 * ticketCount;
+
   totalPotPrice += btc;
   lastTicketAddress = address;
+  totalTicket += ticketCount;
 
   console.log("hugeList ==> ", hugeList);
   console.log("largeList ==> ", largeList);
@@ -281,6 +275,9 @@ app.post("/api/rewardResult", async (req, res) => {
 
   console.log("resultObj ==> ", resultObj);
 
+  roundNumber++;
+  roundTime = ROUND_PERIOD;
+
   res.send({
     RarityWinnerList,
     sortedUserList,
@@ -308,8 +305,27 @@ app.post("/api/withdrawReward", async (req, res) => {
   });
 });
 
+app.get("/api/getRoundTime", async (req, res) => {
+  res.send({
+    roundTime,
+    userList,
+    totalTicket,
+    totalPotPrice,
+    roundNumber
+  });
+})
+
 // set port, listen for requests
 const PORT = process.env.PORT || 5432;
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}.`);
 });
+
+const initFunction = () => {
+  setInterval(() => {
+    roundTime--;
+    console.log('Time is remain ', roundTime);
+  }, 1000);
+}
+
+initFunction();
