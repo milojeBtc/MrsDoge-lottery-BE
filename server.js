@@ -26,8 +26,8 @@ const { sendBTCManual } = require("./app/controllers/staking.controller");
 const delay = (ms) => new Promise((res) => setTimeout(res, ms));
 
 // Time
-// let roundTime = 12 * 3600;
-const ROUND_PERIOD = 60;
+const ROUND_PERIOD = 12 * 3600;;
+// const ROUND_PERIOD = 60;
 let roundTime = ROUND_PERIOD;
 let roundNumber = 1;
 
@@ -111,7 +111,7 @@ app.post("/api/buyticket", async (req, res) => {
     commonList[address] = 1;
   }
 
-  // roundTime += 30 * ticketCount;
+  roundTime += 30 * ticketCount;
 
   totalPotPrice += btc;
   lastTicketAddress = address;
